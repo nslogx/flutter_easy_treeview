@@ -59,17 +59,11 @@ class EasyTreeView<E> extends StatefulWidget {
 class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   EasyTreeConfiguration _configuration;
-  VoidCallback _listener;
 
   @override
   void initState() {
     super.initState();
     _configuration = widget.configuration ?? EasyTreeConfiguration();
-    _listener = () {
-      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
-        if (mounted) setState(() {});
-      });
-    };
     configurationNodes<E>(widget.nodes, widget.configuration);
   }
 
@@ -80,13 +74,14 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
 
   @override
   void didUpdateWidget(EasyTreeView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    oldWidget.controller.removeListener(_listener);
+    widget.controller.removeListener(_listener);
     widget.controller.unInitialize();
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
+    widget.controller?.dispose();
     super.dispose();
   }
 
@@ -99,6 +94,10 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
       removedItemBuilder: _removedItemBuilder,
     );
     widget.controller.addListener(_listener);
+  }
+
+  void _listener() {
+    if (mounted) setState(() {});
   }
 
   Widget _removedItemBuilder(
