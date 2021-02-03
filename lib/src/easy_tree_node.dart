@@ -27,13 +27,13 @@ import './easy_tree_configuration.dart';
 
 class EasyTreeNode<E> {
   final E data;
-  final List<EasyTreeNode> children;
+  final List<EasyTreeNode<E>> children;
   Key key;
   int level;
   bool selected;
   bool indeterminate;
   bool expanded;
-  EasyTreeNode parent;
+  EasyTreeNode<E> parent;
 
   EasyTreeNode({
     @required this.data,

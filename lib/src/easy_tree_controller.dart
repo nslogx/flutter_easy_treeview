@@ -27,6 +27,7 @@ import './easy_tree_node.dart';
 import './easy_tree_util.dart';
 import './easy_tree_configuration.dart';
 import './easy_tree_key_provider.dart';
+import 'easy_tree_node.dart';
 
 class EasyTreeValue {
   const EasyTreeValue({
@@ -63,10 +64,10 @@ class EasyTreeValue {
   }
 }
 
-class EasyTreeController extends ValueNotifier<EasyTreeValue> {
+class EasyTreeController<T> extends ValueNotifier<EasyTreeValue> {
   final EasyTreeKeyProvider _keyProvider = EasyTreeKeyProvider();
   GlobalKey<AnimatedListState> _listKey;
-  EasyTreeItemRemovedBuilder _removedItemBuilder;
+  EasyTreeItemRemovedBuilder<EasyTreeNode<T>> _removedItemBuilder;
 
   EasyTreeController() : super(const EasyTreeValue.uninitialized());
 
@@ -74,7 +75,7 @@ class EasyTreeController extends ValueNotifier<EasyTreeValue> {
     @required List<EasyTreeNode> initialNodes,
     @required EasyTreeConfiguration configuration,
     @required GlobalKey<AnimatedListState> key,
-    @required EasyTreeItemRemovedBuilder removedItemBuilder,
+    @required EasyTreeItemRemovedBuilder<EasyTreeNode<T>> removedItemBuilder,
   }) async {
     assert(key != null);
     assert(removedItemBuilder != null);

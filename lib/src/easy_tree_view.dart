@@ -27,19 +27,17 @@ import './easy_tree_controller.dart';
 import './easy_tree_configuration.dart';
 import './easy_tree_node_item.dart';
 
-typedef EasyTreeItemBuilder<E> = Widget Function(
-    BuildContext context, EasyTreeNode<E> node);
+typedef EasyTreeNodeCallback<E> = void Function(E node);
+typedef EasyTreeItemBuilder<E> = Widget Function(BuildContext context, E node);
 typedef EasyTreeItemRemovedBuilder<E> = Widget Function(
-    EasyTreeNode<E> node, BuildContext context, Animation<double> animation);
-typedef EasyTreeNodeCallback<E> = void Function(EasyTreeNode<E> node);
+    E node, BuildContext context, Animation<double> animation);
 
-class EasyTreeView<E> extends StatefulWidget {
-  final List<EasyTreeNode> nodes;
+class EasyTreeView<T> extends StatefulWidget {
   final EasyTreeController controller;
-  final EasyTreeItemBuilder<E> itemBuilder;
-  final EasyTreeNodeCallback<E> callback;
   final EasyTreeConfiguration configuration;
-
+  final List<EasyTreeNode<T>> nodes;
+  final EasyTreeItemBuilder<EasyTreeNode<T>> itemBuilder;
+  final EasyTreeNodeCallback<EasyTreeNode<T>> callback;
   const EasyTreeView({
     Key key,
     @required this.nodes,
@@ -53,10 +51,10 @@ class EasyTreeView<E> extends StatefulWidget {
         super(key: key);
 
   @override
-  _EasyTreeViewState createState() => _EasyTreeViewState();
+  _EasyTreeViewState createState() => _EasyTreeViewState<T>();
 }
 
-class _EasyTreeViewState extends State<EasyTreeView> {
+class _EasyTreeViewState<T> extends State<EasyTreeView<T>> {
   GlobalKey<AnimatedListState> _listKey;
   EasyTreeConfiguration _configuration;
   VoidCallback _listener;
@@ -101,7 +99,7 @@ class _EasyTreeViewState extends State<EasyTreeView> {
   }
 
   Widget _removedItemBuilder(
-    EasyTreeNode node,
+    EasyTreeNode<T> node,
     BuildContext context,
     Animation<double> animation,
   ) {
@@ -110,10 +108,9 @@ class _EasyTreeViewState extends State<EasyTreeView> {
 
   Widget _buildItem(
     BuildContext context,
-    EasyTreeNode node,
+    EasyTreeNode<T> node,
     Animation<double> animation,
   ) {
-    ListView.builder(itemBuilder: null);
     double indent = widget.configuration.indent ?? 10;
     return SizeTransition(
       sizeFactor: animation,
