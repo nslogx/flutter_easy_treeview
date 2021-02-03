@@ -133,14 +133,14 @@ class _MyHomePageState extends State<MyHomePage> {
               nodes: nodes,
               controller: controller,
               configuration: configuration,
-              callback: (EasyTreeNode node) {
+              callback: (EasyTreeNode<String> node) {
                 if (node.isLeaf) {
                   controller.select(node);
                 } else {
                   controller.onClick(node);
                 }
               },
-              itemBuilder: (BuildContext context, EasyTreeNode node) {
+              itemBuilder: (BuildContext context, EasyTreeNode<String> node) {
                 Color color = Colors.red;
                 if (node.level == 1) {
                   color = Colors.orange;
