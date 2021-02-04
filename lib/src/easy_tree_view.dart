@@ -26,18 +26,20 @@ import './easy_tree_node.dart';
 import './easy_tree_controller.dart';
 import './easy_tree_configuration.dart';
 import './easy_tree_node_item.dart';
+import './easy_tree_util.dart';
 
-typedef EasyTreeNodeCallback<E> = void Function(E node);
-typedef EasyTreeItemBuilder<E> = Widget Function(BuildContext context, E node);
-typedef EasyTreeItemRemovedBuilder<E> = Widget Function(
-    E node, BuildContext context, Animation<double> animation);
+typedef EasyTreeNodeCallback<T> = void Function(T node);
+typedef EasyTreeItemBuilder<T> = Widget Function(BuildContext context, T node);
+typedef EasyTreeItemRemovedBuilder<T> = Widget Function(
+    T node, BuildContext context, Animation<double> animation);
 
-class EasyTreeView<T> extends StatefulWidget {
-  final EasyTreeController controller;
+class EasyTreeView<E> extends StatefulWidget {
+  final EasyTreeController<E> controller;
   final EasyTreeConfiguration configuration;
-  final List<EasyTreeNode<T>> nodes;
-  final EasyTreeItemBuilder<EasyTreeNode<T>> itemBuilder;
-  final EasyTreeNodeCallback<EasyTreeNode<T>> callback;
+  final List<EasyTreeNode<E>> nodes;
+  final EasyTreeItemBuilder<EasyTreeNode<E>> itemBuilder;
+  final EasyTreeNodeCallback<EasyTreeNode<E>> callback;
+
   const EasyTreeView({
     Key key,
     @required this.nodes,
@@ -51,11 +53,11 @@ class EasyTreeView<T> extends StatefulWidget {
         super(key: key);
 
   @override
-  _EasyTreeViewState createState() => _EasyTreeViewState<T>();
+  _EasyTreeViewState createState() => _EasyTreeViewState<E>();
 }
 
-class _EasyTreeViewState<T> extends State<EasyTreeView<T>> {
-  GlobalKey<AnimatedListState> _listKey;
+class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
+  GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   EasyTreeConfiguration _configuration;
   VoidCallback _listener;
 
@@ -66,7 +68,7 @@ class _EasyTreeViewState<T> extends State<EasyTreeView<T>> {
     _listener = () {
       setState(() {});
     };
-    _initialize();
+    configurationNodes<E>(widget.nodes, widget.configuration);
   }
 
   @override
@@ -99,7 +101,7 @@ class _EasyTreeViewState<T> extends State<EasyTreeView<T>> {
   }
 
   Widget _removedItemBuilder(
-    EasyTreeNode<T> node,
+    EasyTreeNode<E> node,
     BuildContext context,
     Animation<double> animation,
   ) {
@@ -108,7 +110,7 @@ class _EasyTreeViewState<T> extends State<EasyTreeView<T>> {
 
   Widget _buildItem(
     BuildContext context,
-    EasyTreeNode<T> node,
+    EasyTreeNode<E> node,
     Animation<double> animation,
   ) {
     double indent = widget.configuration.indent ?? 10;

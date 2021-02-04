@@ -26,76 +26,87 @@ import './easy_tree_node.dart';
 import './easy_tree_key_provider.dart';
 import './easy_tree_configuration.dart';
 
-List<EasyTreeNode> initializeNodes(
-  List<EasyTreeNode> nodes, {
+List<EasyTreeNode<E>> configurationNodes<E>(
+  List<EasyTreeNode<E>> nodes,
+  EasyTreeConfiguration configuration,
+) {
+  if (nodes == null) return [];
+  List<EasyTreeNode<E>> stack = [];
+  stack.addAll(nodes);
+  while (stack.length > 0) {
+    EasyTreeNode<E> node = stack.removeAt(0);
+    bool expanded = node.expanded ?? false;
+    if (configuration.defaultExpandAll) expanded = true;
+    if (node.isLeaf) expanded = false;
+    node.expanded = expanded;
+    if (!node.isLeaf) stack.insertAll(0, node.children);
+  }
+  return nodes;
+}
+
+List<EasyTreeNode<E>> initializeNodes<E>(
+  List<EasyTreeNode<E>> nodes, {
   EasyTreeKeyProvider keyProvider,
-  EasyTreeNode parent,
   EasyTreeConfiguration configuration,
 }) {
   if (nodes == null) return [];
   if (keyProvider == null) keyProvider = EasyTreeKeyProvider();
-  List<EasyTreeNode> stack = [];
+  List<EasyTreeNode<E>> stack = [];
   stack.addAll(nodes);
   while (stack.length > 0) {
-    EasyTreeNode temp = stack.removeAt(0);
-    bool expanded = temp.level == 0;
-    if (configuration.defaultExpandAll) expanded = true;
-    temp
-      ..expanded = expanded
-      ..key = keyProvider.key(temp.key);
-    if (!temp.isLeaf) {
-      for (EasyTreeNode item in temp.children) {
-        bool expanded = item.level == 0;
-        if (configuration.defaultExpandAll) expanded = true;
+    EasyTreeNode<E> node = stack.removeAt(0);
+    node.key = keyProvider.key(node.key);
+    if (!node.isLeaf) {
+      for (EasyTreeNode<E> item in node.children) {
         item
-          ..level = temp.level + 1
-          ..expanded = expanded
-          ..parent = temp
+          ..level = node.level + 1
+          ..parent = node
           ..key = keyProvider.key(item.key);
       }
-      stack.insertAll(0, temp.children);
+      stack.insertAll(0, node.children);
     }
   }
   return nodes;
 }
 
-List<EasyTreeNode> listToTree(List<EasyTreeNode> nodes) {
+List<EasyTreeNode<E>> listToTree<E>(List<EasyTreeNode<E>> nodes) {
   return [];
 }
 
-List<EasyTreeNode> treeToList(List<EasyTreeNode> nodes) {
+List<EasyTreeNode<E>> flatTree<E>(List<EasyTreeNode<E>> nodes) {
   if (nodes == null) return [];
-  List<EasyTreeNode> stack = [], result = [];
+  List<EasyTreeNode<E>> stack = [], result = [];
   stack.addAll(nodes);
   while (stack.length > 0) {
-    EasyTreeNode node = stack.removeAt(0);
-    if (node.level == 0 || node.expanded) {
-      result.add(node);
-      if (!node.isLeaf) stack.insertAll(0, node.children);
-    }
+    EasyTreeNode<E> node = stack.removeAt(0);
+    if (!result.contains(node)) result.add(node);
+    if (!node.isLeaf) stack.insertAll(0, node.children);
   }
   return result;
 }
 
-void toggleNodeExpanded(List<EasyTreeNode> nodes, bool expanded) {
-  if (nodes == null) return;
-  List<EasyTreeNode> stack = [];
-  stack.addAll(nodes);
-  while (stack.length > 0) {
-    EasyTreeNode node = stack.removeAt(0);
-    if (!node.isLeaf) {
-      node.expanded = expanded;
-      stack.insertAll(0, node.children);
-    }
-  }
+List<EasyTreeNode<E>> treeToList<E>(List<EasyTreeNode<E>> nodes) {
+  if (nodes == null) return [];
+  List<EasyTreeNode<E>> result = flatTree<E>(nodes);
+  result.retainWhere((element) => element.level == 0 || element.parentExpanded);
+  return result;
 }
 
-EasyTreeNode searchNode(List<EasyTreeNode> nodes, Key key) {
+void toggleNodeExpanded<E>(List<EasyTreeNode<E>> nodes, bool expanded) {
+  assert(expanded != null);
+  if (nodes == null) return;
+  List<EasyTreeNode<E>> result = flatTree<E>(nodes);
+  result.forEach((element) {
+    if (!element.isLeaf) element.expanded = expanded;
+  });
+}
+
+EasyTreeNode<E> searchNode<E>(List<EasyTreeNode<E>> nodes, Key key) {
   if (key == null || nodes == null) return null;
-  List<EasyTreeNode> stack = [];
+  List<EasyTreeNode<E>> stack = [];
   stack.addAll(nodes);
   while (stack.length > 0) {
-    EasyTreeNode temp = stack.removeAt(0);
+    EasyTreeNode<E> temp = stack.removeAt(0);
     if (!temp.isLeaf) stack.insertAll(0, temp.children);
     if (key == temp.key) return temp;
   }

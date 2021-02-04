@@ -28,7 +28,7 @@ import './easy_tree_util.dart';
 import './easy_tree_configuration.dart';
 import './easy_tree_key_provider.dart';
 
-class EasyTreeValue {
+class EasyTreeValue<E> {
   const EasyTreeValue({
     this.isInitialized,
     this.initialNodes,
@@ -41,19 +41,19 @@ class EasyTreeValue {
   const EasyTreeValue.uninitialized() : this(isInitialized: false);
 
   final bool isInitialized;
-  final List<EasyTreeNode> initialNodes;
-  final List<EasyTreeNode> nodes;
-  final List<EasyTreeNode> selectedNodes;
+  final List<EasyTreeNode<E>> initialNodes;
+  final List<EasyTreeNode<E>> nodes;
+  final List<EasyTreeNode<E>> selectedNodes;
   final EasyTreeConfiguration configuration;
 
-  EasyTreeValue copyWith({
+  EasyTreeValue<E> copyWith<E>({
     bool isInitialized,
-    List<EasyTreeNode> initialNodes,
-    List<EasyTreeNode> nodes,
-    List<EasyTreeNode> selectedNodes,
+    List<EasyTreeNode<E>> initialNodes,
+    List<EasyTreeNode<E>> nodes,
+    List<EasyTreeNode<E>> selectedNodes,
     EasyTreeConfiguration configuration,
   }) {
-    return EasyTreeValue(
+    return EasyTreeValue<E>(
       isInitialized: isInitialized ?? this.isInitialized,
       initialNodes: initialNodes ?? this.initialNodes,
       nodes: nodes ?? this.nodes,
@@ -63,32 +63,32 @@ class EasyTreeValue {
   }
 }
 
-class EasyTreeController<T> extends ValueNotifier<EasyTreeValue> {
+class EasyTreeController<E> extends ValueNotifier<EasyTreeValue<E>> {
   final EasyTreeKeyProvider _keyProvider = EasyTreeKeyProvider();
   GlobalKey<AnimatedListState> _listKey;
-  EasyTreeItemRemovedBuilder<EasyTreeNode<T>> _removedItemBuilder;
+  EasyTreeItemRemovedBuilder<EasyTreeNode<E>> _removedItemBuilder;
 
   EasyTreeController() : super(const EasyTreeValue.uninitialized());
 
   void initialize({
-    @required List<EasyTreeNode> initialNodes,
+    @required List<EasyTreeNode<E>> initialNodes,
     @required EasyTreeConfiguration configuration,
     @required GlobalKey<AnimatedListState> key,
-    @required EasyTreeItemRemovedBuilder<EasyTreeNode<T>> removedItemBuilder,
+    @required EasyTreeItemRemovedBuilder<EasyTreeNode<E>> removedItemBuilder,
   }) async {
     assert(key != null);
     assert(removedItemBuilder != null);
     _listKey = key;
     _removedItemBuilder = removedItemBuilder;
-    List<EasyTreeNode> nodes = initializeNodes(
+    List<EasyTreeNode<E>> _nodes = initializeNodes<E>(
       initialNodes,
       keyProvider: _keyProvider,
       configuration: configuration,
     );
-    value = value.copyWith(
+    value = value.copyWith<E>(
       isInitialized: true,
-      initialNodes: nodes,
-      nodes: treeToList(nodes),
+      initialNodes: _nodes,
+      nodes: treeToList(_nodes),
       configuration: configuration,
     );
   }
@@ -97,17 +97,17 @@ class EasyTreeController<T> extends ValueNotifier<EasyTreeValue> {
     value = value.copyWith(isInitialized: false);
   }
 
-  int get length => value.nodes.length;
-  bool get isInitialized => value.isInitialized;
-  List<EasyTreeNode> get nodes => value.nodes;
-  List<EasyTreeNode> get selectedNodes => value.selectedNodes;
+  bool get isInitialized => value.isInitialized ?? false;
+  List<EasyTreeNode<E>> get nodes => value.nodes ?? [];
+  List<EasyTreeNode<E>> get selectedNodes => value.selectedNodes ?? [];
+  int get length => nodes.length;
 
   @override
   void dispose() {
     super.dispose();
   }
 
-  void onClick(EasyTreeNode node) {
+  void onClick(EasyTreeNode<E> node) {
     assert(value.isInitialized);
     if (node.isLeaf) {
       this.select(node);
@@ -117,11 +117,11 @@ class EasyTreeController<T> extends ValueNotifier<EasyTreeValue> {
   }
 
   /// 展开 node
-  void expand(EasyTreeNode node) {
+  void expand(EasyTreeNode<E> node) {
     assert(value.isInitialized);
     if (node != null && !node.expanded && !node.isLeaf) {
       node.expanded = true;
-      List<EasyTreeNode> modified = node.getModifiedChildren;
+      List<EasyTreeNode<E>> modified = node.getModifiedChildren;
       int index = value.nodes.indexOf(node);
       if (index != -1 && modified.length > 0) {
         index += 1;
@@ -137,13 +137,13 @@ class EasyTreeController<T> extends ValueNotifier<EasyTreeValue> {
   /// 展开所有 node
   void expandAll() {
     assert(value.isInitialized);
-    List<EasyTreeNode> nodes =
+    List<EasyTreeNode<E>> _nodes =
         value.nodes.where((element) => element.level == 0).toList();
-    if (nodes != null && nodes.length > 0) {
-      List<EasyTreeNode> stack = [];
-      stack.addAll(nodes);
+    if (_nodes != null && _nodes.length > 0) {
+      List<EasyTreeNode<E>> stack = [];
+      stack.addAll(_nodes);
       while (stack.length > 0) {
-        EasyTreeNode node = stack.removeAt(0);
+        EasyTreeNode<E> node = stack.removeAt(0);
         if (!node.expanded) this.expand(node);
         if (!node.isLeaf) stack.insertAll(0, node.children);
       }
@@ -152,12 +152,12 @@ class EasyTreeController<T> extends ValueNotifier<EasyTreeValue> {
   }
 
   /// 关闭 node
-  void collapse(EasyTreeNode node) {
+  void collapse(EasyTreeNode<E> node) {
     assert(value.isInitialized);
     if (node != null && node.expanded) {
       node.expanded = false;
-      List<EasyTreeNode> modified = node.getModifiedChildren;
-      for (EasyTreeNode item in modified) {
+      List<EasyTreeNode<E>> modified = node.getModifiedChildren;
+      for (EasyTreeNode<E> item in modified) {
         int index =
             value.nodes.indexWhere((element) => element.key == item.key);
         if (index != -1) {
@@ -173,15 +173,15 @@ class EasyTreeController<T> extends ValueNotifier<EasyTreeValue> {
   /// 关闭所有 node
   void collapseAll() {
     assert(value.isInitialized);
-    List<EasyTreeNode> nodes =
+    List<EasyTreeNode<E>> _nodes =
         value.nodes.where((element) => element.level == 0).toList();
-    for (EasyTreeNode node in nodes) if (node.expanded) this.collapse(node);
+    for (EasyTreeNode<E> node in _nodes) if (node.expanded) this.collapse(node);
     toggleNodeExpanded(value.initialNodes, false);
   }
 
   /// 选中 node
   void select(
-    EasyTreeNode node, {
+    EasyTreeNode<E> node, {
     bool selected,
     bool selectAll = false,
   }) {
@@ -196,22 +196,17 @@ class EasyTreeController<T> extends ValueNotifier<EasyTreeValue> {
   /// 选中所有 node, [selected], 是否选中
   void selectAll({bool selected = true}) {
     assert(value.isInitialized);
-    List<EasyTreeNode> nodes =
+    List<EasyTreeNode<E>> _nodes =
         value.nodes.where((element) => element.level == 0).toList();
-    for (EasyTreeNode node in nodes) {
+    for (EasyTreeNode<E> node in _nodes) {
       this.select(node, selected: selected, selectAll: true);
     }
     _updateSelectedNodes();
   }
 
   void _updateSelectedNodes() {
-    List<EasyTreeNode> nodes = [], stack = [];
-    if (value.initialNodes != null) stack.addAll(value.initialNodes);
-    while (stack.length > 0) {
-      EasyTreeNode node = stack.removeAt(0);
-      if (node.selected) nodes.add(node);
-      if (!node.isLeaf) stack.insertAll(0, node.children);
-    }
-    value = value.copyWith(selectedNodes: nodes);
+    List<EasyTreeNode<E>> _nodes = flatTree<E>(value.initialNodes);
+    _nodes.retainWhere((element) => element.selected);
+    value = value.copyWith(selectedNodes: _nodes);
   }
 }

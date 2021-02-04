@@ -45,7 +45,7 @@ void main() {
       ),
     ];
 
-    List<EasyTreeNode> result = treeToList(nodes);
+    List<EasyTreeNode<String>> result = treeToList(nodes);
     result.forEach((element) {
       print('element.data ${element.data}');
       print('element.level ${element.level}');

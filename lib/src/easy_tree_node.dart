@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 
 import './easy_tree_tuple.dart';
 import './easy_tree_configuration.dart';
+import './easy_tree_util.dart';
 
 class EasyTreeNode<E> {
   final E data;
@@ -46,7 +47,7 @@ class EasyTreeNode<E> {
     this.parent,
   });
 
-  EasyTreeNode copyWith({
+  EasyTreeNode<E> copyWith({
     E data,
     List<EasyTreeNode<E>> children,
     Key key,
@@ -69,29 +70,24 @@ class EasyTreeNode<E> {
   }
 
   bool get isLeaf => this.children?.isEmpty ?? true;
+  bool get parentExpanded => this.parent?.expanded ?? false;
 
   EasyTreeTuple<bool, bool, bool> get getChildState {
     bool all = true, none = true;
-    List<EasyTreeNode> stack = [];
-    if (!this.isLeaf) stack.addAll(this.children);
-    while (stack.length > 0) {
-      EasyTreeNode node = stack.removeAt(0);
-      if (!node.selected) all = false;
-      if (node.selected) none = false;
-      if (!node.isLeaf) stack.insertAll(0, node.children);
-    }
+    List<EasyTreeNode<E>> _nodes = flatTree<E>(this.children);
+    _nodes.forEach((element) {
+      if (!element.selected) all = false;
+      if (element.selected) none = false;
+    });
     return EasyTreeTuple(all, none, !all && !none);
   }
 
-  List<EasyTreeNode> get getModifiedChildren {
+  List<EasyTreeNode<E>> get getModifiedChildren {
     if (this.isLeaf) return [];
-    List<EasyTreeNode> _nodes = _flatTree(this.children), _children = [];
-    for (EasyTreeNode item in _nodes) {
-      if (item.parent == this || item.parent.expanded) {
-        if (!_children.contains(item)) _children.add(item);
-      }
-    }
-    return _children;
+    List<EasyTreeNode<E>> _nodes = flatTree<E>(this.children);
+    _nodes.retainWhere(
+        (element) => element.parent == this || element.parentExpanded);
+    return _nodes;
   }
 
   void select(
@@ -100,13 +96,10 @@ class EasyTreeNode<E> {
   }) {
     this.selected = selected;
     if (configuration.selectStrictly) return;
-    List<EasyTreeNode> stack = [];
-    if (!this.isLeaf) stack.addAll(this.children);
-    while (stack.length > 0) {
-      EasyTreeNode temp = stack.removeAt(0);
-      temp.selected = this.selected;
-      if (!temp.isLeaf) stack.insertAll(0, temp.children);
-    }
+    List<EasyTreeNode<E>> _nodes = flatTree<E>(this.children);
+    _nodes.forEach((element) {
+      element.selected = this.selected;
+    });
     _updateParentState();
   }
 
@@ -114,25 +107,13 @@ class EasyTreeNode<E> {
     this.parent?.removeChild(this);
   }
 
-  void removeChild(EasyTreeNode child) {
+  void removeChild(EasyTreeNode<E> child) {
     this.children?.remove(child);
-  }
-
-  List<EasyTreeNode> _flatTree(List<EasyTreeNode> nodes) {
-    if (nodes == null) return [];
-    List<EasyTreeNode> stack = [], result = [];
-    stack.addAll(nodes);
-    while (stack.length > 0) {
-      EasyTreeNode node = stack.removeAt(0);
-      if (!result.contains(node)) result.add(node);
-      if (!node.isLeaf) stack.insertAll(0, node.children);
-    }
-    return result;
   }
 
   void _updateParentState() {
     if (this.level == 0) return;
-    EasyTreeNode parent = this.parent;
+    EasyTreeNode<E> parent = this.parent;
     while (parent != null) {
       EasyTreeTuple<bool, bool, bool> tuple = parent.getChildState;
       bool all = tuple.item1, none = tuple.item2, half = tuple.item3;
