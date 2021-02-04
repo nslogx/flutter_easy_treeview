@@ -66,7 +66,9 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
     super.initState();
     _configuration = widget.configuration ?? EasyTreeConfiguration();
     _listener = () {
-      setState(() {});
+      WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
+        if (mounted) setState(() {});
+      });
     };
     configurationNodes<E>(widget.nodes, widget.configuration);
   }
@@ -85,7 +87,6 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
 
   @override
   void dispose() {
-    widget.controller.dispose();
     super.dispose();
   }
 

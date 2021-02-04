@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   EasyTreeController<String> treeController = EasyTreeController<String>();
   EasyTreeConfiguration configuration = EasyTreeConfiguration(
-    // defaultExpandAll: true,
+    defaultExpandAll: true,
     padding: EdgeInsets.only(bottom: 5),
   );
 

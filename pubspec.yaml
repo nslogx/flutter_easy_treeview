@@ -1,6 +1,6 @@
 name: flutter_easy_treeview
 description: This widget visualises a tree structure, where a node can be any widget.
-version: 0.5.0
+version: 0.6.0
 homepage: https://github.com/kokohuang/flutter_easy_treeview
 
 environment:

@@ -23,6 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # flutter_easy_treeview: ^0.5.0
   flutter_easy_treeview:
     path: ../
 

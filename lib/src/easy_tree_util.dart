@@ -26,22 +26,18 @@ import './easy_tree_node.dart';
 import './easy_tree_key_provider.dart';
 import './easy_tree_configuration.dart';
 
-List<EasyTreeNode<E>> configurationNodes<E>(
+void configurationNodes<E>(
   List<EasyTreeNode<E>> nodes,
   EasyTreeConfiguration configuration,
 ) {
-  if (nodes == null) return [];
-  List<EasyTreeNode<E>> stack = [];
-  stack.addAll(nodes);
-  while (stack.length > 0) {
-    EasyTreeNode<E> node = stack.removeAt(0);
+  if (nodes == null) return;
+  List<EasyTreeNode<E>> _nodes = flatTree<E>(nodes);
+  _nodes.forEach((node) {
     bool expanded = node.expanded ?? false;
     if (configuration.defaultExpandAll) expanded = true;
     if (node.isLeaf) expanded = false;
     node.expanded = expanded;
-    if (!node.isLeaf) stack.insertAll(0, node.children);
-  }
-  return nodes;
+  });
 }
 
 List<EasyTreeNode<E>> initializeNodes<E>(
@@ -73,18 +69,6 @@ List<EasyTreeNode<E>> listToTree<E>(List<EasyTreeNode<E>> nodes) {
   return [];
 }
 
-List<EasyTreeNode<E>> flatTree<E>(List<EasyTreeNode<E>> nodes) {
-  if (nodes == null) return [];
-  List<EasyTreeNode<E>> stack = [], result = [];
-  stack.addAll(nodes);
-  while (stack.length > 0) {
-    EasyTreeNode<E> node = stack.removeAt(0);
-    if (!result.contains(node)) result.add(node);
-    if (!node.isLeaf) stack.insertAll(0, node.children);
-  }
-  return result;
-}
-
 List<EasyTreeNode<E>> treeToList<E>(List<EasyTreeNode<E>> nodes) {
   if (nodes == null) return [];
   List<EasyTreeNode<E>> result = flatTree<E>(nodes);
@@ -99,6 +83,18 @@ void toggleNodeExpanded<E>(List<EasyTreeNode<E>> nodes, bool expanded) {
   result.forEach((element) {
     if (!element.isLeaf) element.expanded = expanded;
   });
+}
+
+List<EasyTreeNode<E>> flatTree<E>(List<EasyTreeNode<E>> nodes) {
+  if (nodes == null) return [];
+  List<EasyTreeNode<E>> stack = [], result = [];
+  stack.addAll(nodes);
+  while (stack.length > 0) {
+    EasyTreeNode<E> node = stack.removeAt(0);
+    if (!result.contains(node)) result.add(node);
+    if (!node.isLeaf) stack.insertAll(0, node.children);
+  }
+  return result;
 }
 
 EasyTreeNode<E> searchNode<E>(List<EasyTreeNode<E>> nodes, Key key) {
