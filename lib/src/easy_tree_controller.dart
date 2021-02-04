@@ -27,7 +27,6 @@ import './easy_tree_node.dart';
 import './easy_tree_util.dart';
 import './easy_tree_configuration.dart';
 import './easy_tree_key_provider.dart';
-import 'easy_tree_node.dart';
 
 class EasyTreeValue {
   const EasyTreeValue({
@@ -196,6 +195,7 @@ class EasyTreeController<T> extends ValueNotifier<EasyTreeValue> {
 
   /// 选中所有 node, [selected], 是否选中
   void selectAll({bool selected = true}) {
+    assert(value.isInitialized);
     List<EasyTreeNode> nodes =
         value.nodes.where((element) => element.level == 0).toList();
     for (EasyTreeNode node in nodes) {

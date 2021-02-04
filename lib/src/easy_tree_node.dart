@@ -48,13 +48,13 @@ class EasyTreeNode<E> {
 
   EasyTreeNode copyWith({
     E data,
-    List<EasyTreeNode> children,
+    List<EasyTreeNode<E>> children,
     Key key,
     int level,
     bool selected,
     bool indeterminate,
     bool expanded,
-    EasyTreeNode parent,
+    EasyTreeNode<E> parent,
   }) {
     return EasyTreeNode(
       data: data ?? this.data,
