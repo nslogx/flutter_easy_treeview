@@ -42,22 +42,20 @@ void configurationNodes<E>(
 
 List<EasyTreeNode<E>> initializeNodes<E>(
   List<EasyTreeNode<E>> nodes, {
-  EasyTreeKeyProvider keyProvider,
   EasyTreeConfiguration configuration,
 }) {
   if (nodes == null) return [];
-  if (keyProvider == null) keyProvider = EasyTreeKeyProvider();
   List<EasyTreeNode<E>> stack = [];
   stack.addAll(nodes);
   while (stack.length > 0) {
     EasyTreeNode<E> node = stack.removeAt(0);
-    node.key = keyProvider.key(node.key);
+    node.key = EasyTreeKeyProvider.instance.key;
     if (!node.isLeaf) {
       for (EasyTreeNode<E> item in node.children) {
         item
           ..level = node.level + 1
           ..parent = node
-          ..key = keyProvider.key(item.key);
+          ..key = EasyTreeKeyProvider.instance.key;
       }
       stack.insertAll(0, node.children);
     }

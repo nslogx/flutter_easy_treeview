@@ -27,16 +27,15 @@ class _EasyTreeNodeKey extends ValueKey {
 }
 
 class EasyTreeKeyProvider {
-  int _nextIndex = 0;
-  final Set<Key> _keys = <Key>{};
+  int _nextIndex;
 
-  Key key(Key key) {
-    if (key == null) return _EasyTreeNodeKey(_nextIndex++);
-    if (_keys.contains(key)) {
-      _keys.remove(key);
-      key = _EasyTreeNodeKey(_nextIndex++);
-    }
-    _keys.add(key);
-    return key;
+  factory EasyTreeKeyProvider() => _instance;
+  static final EasyTreeKeyProvider _instance = EasyTreeKeyProvider._internal();
+
+  EasyTreeKeyProvider._internal() {
+    _nextIndex = 0;
   }
+
+  static EasyTreeKeyProvider get instance => _instance;
+  Key get key => _EasyTreeNodeKey(_nextIndex++);
 }

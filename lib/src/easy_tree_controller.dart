@@ -26,10 +26,8 @@ import './easy_tree_view.dart';
 import './easy_tree_node.dart';
 import './easy_tree_util.dart';
 import './easy_tree_configuration.dart';
-import './easy_tree_key_provider.dart';
 
 class EasyTreeController<E> {
-  final EasyTreeKeyProvider _keyProvider = EasyTreeKeyProvider();
   bool _isInitialized;
   List<VoidCallback> _listeners = [];
   GlobalKey<AnimatedListState> _listKey;
@@ -59,7 +57,6 @@ class EasyTreeController<E> {
     _isInitialized = true;
     _initialNodes = initializeNodes<E>(
       initialNodes,
-      keyProvider: _keyProvider,
       configuration: configuration,
     );
     _nodes = treeToList(_initialNodes);
