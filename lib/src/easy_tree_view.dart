@@ -140,7 +140,10 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
       key: _listKey,
       initialItemCount: widget.controller.length,
       itemBuilder: (context, index, animation) {
-        return _buildItem(context, widget.controller.nodes[index], animation);
+        if (index < widget.controller.nodes.length) {
+          return _buildItem(context, widget.controller.nodes[index], animation);
+        }
+        return Container();
       },
     );
   }
