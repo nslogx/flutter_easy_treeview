@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2021 kokohuang
+// Copyright (c) 2021 nslog11
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -59,11 +59,15 @@ class EasyTreeView<E> extends StatefulWidget {
 class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   EasyTreeConfiguration _configuration;
+  ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     _configuration = widget.configuration ?? EasyTreeConfiguration();
+    _scrollController = ScrollController(
+      initialScrollOffset: _configuration.initialScrollOffset,
+    );
     configurationNodes<E>(widget.nodes, widget.configuration);
   }
 
@@ -138,6 +142,7 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
     if (!widget.controller.isInitialized) _initialize();
     return AnimatedList(
       key: _listKey,
+      controller: _scrollController,
       initialItemCount: widget.controller.length,
       itemBuilder: (context, index, animation) {
         if (index < widget.controller.nodes.length) {

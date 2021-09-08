@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2021 kokohuang
+// Copyright (c) 2021 nslog11
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -26,6 +26,9 @@ class EasyTreeConfiguration {
   /// 缩进距离
   final double indent;
 
+  /// 初始滚动距离
+  final double initialScrollOffset;
+
   /// 是否每次只打开一个同级树节点展开(暂未实现)
   final bool accordion;
 
@@ -43,12 +46,14 @@ class EasyTreeConfiguration {
 
   const EasyTreeConfiguration({
     this.indent = 10,
+    this.initialScrollOffset = 0,
     this.accordion = false,
     this.selectStrictly = false,
     this.expandOnClickNode = true,
     this.defaultExpandAll = false,
     this.padding = EdgeInsets.zero,
   })  : assert(indent != null),
+        assert(initialScrollOffset != null),
         assert(accordion != null),
         assert(selectStrictly != null),
         assert(expandOnClickNode != null),
