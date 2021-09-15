@@ -35,6 +35,7 @@ typedef EasyTreeItemRemovedBuilder<T> = Widget Function(
 
 class EasyTreeView<E> extends StatefulWidget {
   final EasyTreeController<E> controller;
+  final ScrollController scrollController;
   final EasyTreeConfiguration configuration;
   final List<EasyTreeNode<E>> nodes;
   final EasyTreeItemBuilder<EasyTreeNode<E>> itemBuilder;
@@ -46,6 +47,7 @@ class EasyTreeView<E> extends StatefulWidget {
     @required this.itemBuilder,
     @required this.controller,
     this.callback,
+    this.scrollController,
     this.configuration,
   })  : assert(nodes != null),
         assert(itemBuilder != null),
@@ -65,9 +67,6 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
   void initState() {
     super.initState();
     _configuration = widget.configuration ?? EasyTreeConfiguration();
-    _scrollController = ScrollController(
-      initialScrollOffset: _configuration.initialScrollOffset,
-    );
     configurationNodes<E>(widget.nodes, widget.configuration);
   }
 
@@ -87,6 +86,16 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
   void dispose() {
     widget.controller?.dispose();
     super.dispose();
+  }
+
+  ScrollController get scrollController {
+    if (widget.scrollController != null) return widget.scrollController;
+    if (_scrollController == null) {
+      _scrollController = ScrollController(
+        initialScrollOffset: _configuration.initialScrollOffset ?? 0,
+      );
+    }
+    return _scrollController;
   }
 
   void _initialize() {
@@ -142,7 +151,7 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
     if (!widget.controller.isInitialized) _initialize();
     return AnimatedList(
       key: _listKey,
-      controller: _scrollController,
+      controller: scrollController,
       initialItemCount: widget.controller.length,
       itemBuilder: (context, index, animation) {
         if (index < widget.controller.nodes.length) {
