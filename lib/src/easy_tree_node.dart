@@ -28,16 +28,16 @@ import './easy_tree_util.dart';
 
 class EasyTreeNode<E> {
   final E data;
-  final List<EasyTreeNode<E>> children;
-  Key key;
+  final List<EasyTreeNode<E>>? children;
+  Key? key;
   int level;
   bool selected;
   bool indeterminate;
   bool expanded;
-  EasyTreeNode<E> parent;
+  EasyTreeNode<E>? parent;
 
   EasyTreeNode({
-    @required this.data,
+    required this.data,
     this.children,
     this.key,
     this.level = 0,
@@ -48,14 +48,14 @@ class EasyTreeNode<E> {
   });
 
   EasyTreeNode<E> copyWith({
-    E data,
-    List<EasyTreeNode<E>> children,
-    Key key,
-    int level,
-    bool selected,
-    bool indeterminate,
-    bool expanded,
-    EasyTreeNode<E> parent,
+    E? data,
+    List<EasyTreeNode<E>>? children,
+    Key? key,
+    int? level,
+    bool? selected,
+    bool? indeterminate,
+    bool? expanded,
+    EasyTreeNode<E>? parent,
   }) {
     return EasyTreeNode(
       data: data ?? this.data,
@@ -92,10 +92,10 @@ class EasyTreeNode<E> {
 
   void select(
     bool selected, {
-    EasyTreeConfiguration configuration,
+    EasyTreeConfiguration? configuration,
   }) {
     this.selected = selected;
-    if (configuration.selectStrictly) return;
+    if (configuration?.selectStrictly ?? false) return;
     List<EasyTreeNode<E>> _nodes = flatTree<E>(this.children);
     _nodes.forEach((element) {
       element.selected = this.selected;
@@ -113,7 +113,7 @@ class EasyTreeNode<E> {
 
   void _updateParentState() {
     if (this.level == 0) return;
-    EasyTreeNode<E> parent = this.parent;
+    EasyTreeNode<E>? parent = this.parent;
     while (parent != null) {
       EasyTreeTuple<bool, bool, bool> tuple = parent.getChildState;
       bool all = tuple.item1, none = tuple.item2, half = tuple.item3;

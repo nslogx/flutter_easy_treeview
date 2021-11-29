@@ -28,30 +28,28 @@ import './easy_tree_util.dart';
 import './easy_tree_configuration.dart';
 
 class EasyTreeController<E> {
-  bool _isInitialized;
+  bool _isInitialized = false;
   List<VoidCallback> _listeners = [];
-  GlobalKey<AnimatedListState> _listKey;
-  List<EasyTreeNode<E>> _initialNodes;
-  List<EasyTreeNode<E>> _nodes;
-  List<EasyTreeNode<E>> _selectedNodes;
-  EasyTreeConfiguration _configuration;
-  EasyTreeItemRemovedBuilder<EasyTreeNode<E>> _removedItemBuilder;
+  List<EasyTreeNode<E>>? _nodes;
+  List<EasyTreeNode<E>>? _selectedNodes;
+  late GlobalKey<AnimatedListState> _listKey;
+  late List<EasyTreeNode<E>> _initialNodes;
+  late EasyTreeConfiguration _configuration;
+  late EasyTreeItemRemovedBuilder<EasyTreeNode<E>> _removedItemBuilder;
 
   EasyTreeController();
 
-  bool get isInitialized => _isInitialized ?? false;
+  bool get isInitialized => _isInitialized;
   List<EasyTreeNode<E>> get nodes => _nodes ?? [];
   List<EasyTreeNode<E>> get selectedNodes => _selectedNodes ?? [];
   int get length => nodes.length;
 
   void initialize({
-    @required List<EasyTreeNode<E>> initialNodes,
-    @required EasyTreeConfiguration configuration,
-    @required GlobalKey<AnimatedListState> key,
-    @required EasyTreeItemRemovedBuilder<EasyTreeNode<E>> removedItemBuilder,
+    required List<EasyTreeNode<E>> initialNodes,
+    required EasyTreeConfiguration configuration,
+    required GlobalKey<AnimatedListState> key,
+    required EasyTreeItemRemovedBuilder<EasyTreeNode<E>> removedItemBuilder,
   }) async {
-    assert(key != null);
-    assert(removedItemBuilder != null);
     _listKey = key;
     _removedItemBuilder = removedItemBuilder;
     _isInitialized = true;
@@ -80,7 +78,7 @@ class EasyTreeController<E> {
   }
 
   void dispose() {
-    if (_listeners != null) _listeners.clear();
+    if (_listeners.isNotEmpty) _listeners.clear();
   }
 
   void onClick(EasyTreeNode<E> node) {
@@ -95,17 +93,16 @@ class EasyTreeController<E> {
   /// 展开 node
   void expand(EasyTreeNode<E> node) {
     assert(_isInitialized);
-    print(node.data);
-    if (node != null && !node.expanded && !node.isLeaf) {
+    if (!node.expanded && !node.isLeaf && _nodes != null) {
       node.expanded = true;
       List<EasyTreeNode<E>> modified = node.getModifiedChildren;
-      int index = _nodes.indexOf(node);
+      int index = _nodes!.indexOf(node);
       if (index != -1 && modified.length > 0) {
         index += 1;
-        _nodes.insertAll(index, modified);
+        _nodes!.insertAll(index, modified);
         int total = modified.length;
         for (int offset = 0; offset < total; offset++) {
-          _listKey?.currentState?.insertItem(index + offset);
+          _listKey.currentState?.insertItem(index + offset);
         }
       }
     }
@@ -124,16 +121,16 @@ class EasyTreeController<E> {
   /// 关闭 node
   void collapse(EasyTreeNode<E> node) {
     assert(_isInitialized);
-    if (node != null && node.expanded) {
+    if (node.expanded && _nodes != null) {
       node.expanded = false;
       List<EasyTreeNode<E>> modified = node.getModifiedChildren;
       for (EasyTreeNode<E> item in modified) {
-        int index = _nodes.indexWhere((element) => element.key == item.key);
+        int index = _nodes!.indexWhere((element) => element.key == item.key);
         if (index != -1) {
-          _listKey?.currentState?.removeItem(index, (context, animation) {
+          _listKey.currentState?.removeItem(index, (context, animation) {
             return _removedItemBuilder(item, context, animation);
           });
-          _nodes.removeWhere((element) => item.key == element.key);
+          _nodes!.removeWhere((element) => item.key == element.key);
         }
       }
     }
@@ -142,16 +139,19 @@ class EasyTreeController<E> {
   /// 关闭所有 node
   void collapseAll() {
     assert(_isInitialized);
-    List<EasyTreeNode<E>> result =
-        _nodes.where((element) => element.level == 0).toList();
-    for (EasyTreeNode<E> node in result) if (node.expanded) this.collapse(node);
-    toggleNodeExpanded(_initialNodes, false);
+    if (_nodes != null) {
+      List<EasyTreeNode<E>> result =
+          _nodes!.where((element) => element.level == 0).toList();
+      for (EasyTreeNode<E> node in result)
+        if (node.expanded) this.collapse(node);
+      toggleNodeExpanded(_initialNodes, false);
+    }
   }
 
   /// 选中 node
   void select(
     EasyTreeNode<E> node, {
-    bool selected,
+    bool? selected,
     bool selectAll = false,
   }) {
     assert(_isInitialized);
@@ -165,23 +165,27 @@ class EasyTreeController<E> {
   /// 选中所有 node, [selected], 是否选中
   void selectAll({bool selected = true}) {
     assert(_isInitialized);
-    List<EasyTreeNode<E>> result =
-        _nodes.where((element) => element.level == 0).toList();
-    for (EasyTreeNode<E> node in result) {
-      this.select(node, selected: selected, selectAll: true);
+    if (_nodes != null) {
+      List<EasyTreeNode<E>> result =
+          _nodes!.where((element) => element.level == 0).toList();
+      for (EasyTreeNode<E> node in result) {
+        this.select(node, selected: selected, selectAll: true);
+      }
+      _updateSelectedNodes();
     }
-    _updateSelectedNodes();
   }
 
   void _updateSelectedNodes() {
-    _selectedNodes = flatTree<E>(_initialNodes);
-    _selectedNodes.retainWhere((element) => element.selected);
-    _notifyListeners();
+    if (_selectedNodes != null) {
+      _selectedNodes = flatTree<E>(_initialNodes);
+      _selectedNodes!.retainWhere((element) => element.selected);
+      _notifyListeners();
+    }
   }
 
   void _notifyListeners() {
     for (VoidCallback listener in _listeners) {
-      if (listener != null) listener();
+      listener();
     }
   }
 }

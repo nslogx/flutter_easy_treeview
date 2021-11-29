@@ -30,10 +30,9 @@ void configurationNodes<E>(
   List<EasyTreeNode<E>> nodes,
   EasyTreeConfiguration configuration,
 ) {
-  if (nodes == null) return;
   List<EasyTreeNode<E>> _nodes = flatTree<E>(nodes);
   _nodes.forEach((node) {
-    bool expanded = node.expanded ?? false;
+    bool expanded = node.expanded;
     if (configuration.defaultExpandAll) expanded = true;
     if (node.isLeaf) expanded = false;
     node.expanded = expanded;
@@ -41,8 +40,8 @@ void configurationNodes<E>(
 }
 
 List<EasyTreeNode<E>> initializeNodes<E>(
-  List<EasyTreeNode<E>> nodes, {
-  EasyTreeConfiguration configuration,
+  List<EasyTreeNode<E>>? nodes, {
+  EasyTreeConfiguration? configuration,
 }) {
   if (nodes == null) return [];
   List<EasyTreeNode<E>> stack = [];
@@ -51,13 +50,13 @@ List<EasyTreeNode<E>> initializeNodes<E>(
     EasyTreeNode<E> node = stack.removeAt(0);
     node.key = EasyTreeKeyProvider.instance.key;
     if (!node.isLeaf) {
-      for (EasyTreeNode<E> item in node.children) {
+      for (EasyTreeNode<E> item in node.children!) {
         item
           ..level = node.level + 1
           ..parent = node
           ..key = EasyTreeKeyProvider.instance.key;
       }
-      stack.insertAll(0, node.children);
+      stack.insertAll(0, node.children!);
     }
   }
   return nodes;
@@ -67,15 +66,14 @@ List<EasyTreeNode<E>> listToTree<E>(List<EasyTreeNode<E>> nodes) {
   return [];
 }
 
-List<EasyTreeNode<E>> treeToList<E>(List<EasyTreeNode<E>> nodes) {
+List<EasyTreeNode<E>> treeToList<E>(List<EasyTreeNode<E>>? nodes) {
   if (nodes == null) return [];
   List<EasyTreeNode<E>> result = flatTree<E>(nodes);
   result.retainWhere((element) => element.level == 0 || element.parentExpanded);
   return result;
 }
 
-void toggleNodeExpanded<E>(List<EasyTreeNode<E>> nodes, bool expanded) {
-  assert(expanded != null);
+void toggleNodeExpanded<E>(List<EasyTreeNode<E>>? nodes, bool expanded) {
   if (nodes == null) return;
   List<EasyTreeNode<E>> result = flatTree<E>(nodes);
   result.forEach((element) {
@@ -83,25 +81,25 @@ void toggleNodeExpanded<E>(List<EasyTreeNode<E>> nodes, bool expanded) {
   });
 }
 
-List<EasyTreeNode<E>> flatTree<E>(List<EasyTreeNode<E>> nodes) {
+List<EasyTreeNode<E>> flatTree<E>(List<EasyTreeNode<E>>? nodes) {
   if (nodes == null) return [];
   List<EasyTreeNode<E>> stack = [], result = [];
   stack.addAll(nodes);
   while (stack.length > 0) {
     EasyTreeNode<E> node = stack.removeAt(0);
     if (!result.contains(node)) result.add(node);
-    if (!node.isLeaf) stack.insertAll(0, node.children);
+    if (!node.isLeaf) stack.insertAll(0, node.children!);
   }
   return result;
 }
 
-EasyTreeNode<E> searchNode<E>(List<EasyTreeNode<E>> nodes, Key key) {
+EasyTreeNode<E>? searchNode<E>(List<EasyTreeNode<E>>? nodes, Key? key) {
   if (key == null || nodes == null) return null;
   List<EasyTreeNode<E>> stack = [];
   stack.addAll(nodes);
   while (stack.length > 0) {
     EasyTreeNode<E> temp = stack.removeAt(0);
-    if (!temp.isLeaf) stack.insertAll(0, temp.children);
+    if (!temp.isLeaf) stack.insertAll(0, temp.children!);
     if (key == temp.key) return temp;
   }
   return null;

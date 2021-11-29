@@ -94,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             onPressed: () {
               nodes.add(EasyTreeNode<String>(data: '3'));
               setState(() {});
@@ -110,19 +110,19 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Row(
             children: <Widget>[
-              FlatButton(
+              TextButton(
                 onPressed: () => treeController.collapseAll(),
                 child: Text('Collapse All'),
               ),
-              FlatButton(
+              TextButton(
                 onPressed: () => treeController.expandAll(),
                 child: Text('Expand All'),
               ),
-              FlatButton(
+              TextButton(
                 onPressed: () => treeController.selectAll(),
                 child: Text('Select All'),
               ),
-              FlatButton(
+              TextButton(
                 onPressed: () => treeController.selectAll(selected: false),
                 child: Text('UnSelect All'),
               ),
@@ -160,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Text('${node.expanded.toString()} ${node.data}'),
                         margin: const EdgeInsets.only(left: 10),
                       ),
-                      FlatButton(
+                      TextButton(
                         onPressed: () => treeController.select(node),
                         child: Text(
                           'Select',

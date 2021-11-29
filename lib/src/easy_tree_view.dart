@@ -35,24 +35,21 @@ typedef EasyTreeItemRemovedBuilder<T> = Widget Function(
 
 class EasyTreeView<E> extends StatefulWidget {
   final EasyTreeController<E> controller;
-  final ScrollController scrollController;
-  final EasyTreeConfiguration configuration;
   final List<EasyTreeNode<E>> nodes;
   final EasyTreeItemBuilder<EasyTreeNode<E>> itemBuilder;
-  final EasyTreeNodeCallback<EasyTreeNode<E>> callback;
+  final EasyTreeNodeCallback<EasyTreeNode<E>>? callback;
+  final ScrollController? scrollController;
+  final EasyTreeConfiguration? configuration;
 
   const EasyTreeView({
-    Key key,
-    @required this.nodes,
-    @required this.itemBuilder,
-    @required this.controller,
+    Key? key,
+    required this.nodes,
+    required this.itemBuilder,
+    required this.controller,
     this.callback,
     this.scrollController,
     this.configuration,
-  })  : assert(nodes != null),
-        assert(itemBuilder != null),
-        assert(controller != null),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   _EasyTreeViewState createState() => _EasyTreeViewState<E>();
@@ -60,14 +57,14 @@ class EasyTreeView<E> extends StatefulWidget {
 
 class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  EasyTreeConfiguration _configuration;
-  ScrollController _scrollController;
+  late EasyTreeConfiguration _configuration;
+  ScrollController? _scrollController;
 
   @override
   void initState() {
     super.initState();
     _configuration = widget.configuration ?? EasyTreeConfiguration();
-    configurationNodes<E>(widget.nodes, widget.configuration);
+    configurationNodes<E>(widget.nodes, _configuration);
   }
 
   @override
@@ -76,7 +73,7 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
   }
 
   @override
-  void didUpdateWidget(EasyTreeView oldWidget) {
+  void didUpdateWidget(EasyTreeView<E> oldWidget) {
     widget.controller.removeListener(_listener);
     widget.controller.unInitialize();
     super.didUpdateWidget(oldWidget);
@@ -84,18 +81,18 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
 
   @override
   void dispose() {
-    widget.controller?.dispose();
+    widget.controller.dispose();
     super.dispose();
   }
 
   ScrollController get scrollController {
-    if (widget.scrollController != null) return widget.scrollController;
+    if (widget.scrollController != null) return widget.scrollController!;
     if (_scrollController == null) {
       _scrollController = ScrollController(
-        initialScrollOffset: _configuration.initialScrollOffset ?? 0,
+        initialScrollOffset: _configuration.initialScrollOffset,
       );
     }
-    return _scrollController;
+    return _scrollController!;
   }
 
   void _initialize() {
@@ -126,21 +123,21 @@ class _EasyTreeViewState<E> extends State<EasyTreeView<E>> {
     EasyTreeNode<E> node,
     Animation<double> animation,
   ) {
-    double indent = widget.configuration.indent ?? 10;
+    double indent = _configuration.indent;
     return SizeTransition(
       sizeFactor: animation,
       child: GestureDetector(
         child: Container(
           margin: EdgeInsets.only(left: indent * node.level),
           child: Container(
-            padding: widget.configuration.padding ?? EdgeInsets.zero,
+            padding: _configuration.padding,
             child: EasyTreeNodeItem(
               child: widget.itemBuilder(context, node),
             ),
           ),
         ),
         onTap: () => widget.callback != null
-            ? widget.callback(node)
+            ? widget.callback!(node)
             : widget.controller.onClick(node),
       ),
     );

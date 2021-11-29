@@ -26,7 +26,7 @@ class EasyTreeNodeItem extends StatefulWidget {
   final Widget child;
 
   const EasyTreeNodeItem({
-    @required this.child,
+    required this.child,
   });
 
   @override

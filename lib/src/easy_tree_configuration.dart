@@ -52,10 +52,5 @@ class EasyTreeConfiguration {
     this.expandOnClickNode = true,
     this.defaultExpandAll = false,
     this.padding = EdgeInsets.zero,
-  })  : assert(indent != null),
-        assert(initialScrollOffset != null),
-        assert(accordion != null),
-        assert(selectStrictly != null),
-        assert(expandOnClickNode != null),
-        assert(defaultExpandAll != null);
+  });
 }

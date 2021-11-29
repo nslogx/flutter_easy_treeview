@@ -27,7 +27,7 @@ class _EasyTreeNodeKey extends ValueKey {
 }
 
 class EasyTreeKeyProvider {
-  int _nextIndex;
+  late int _nextIndex;
 
   factory EasyTreeKeyProvider() => _instance;
   static final EasyTreeKeyProvider _instance = EasyTreeKeyProvider._internal();
