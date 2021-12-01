@@ -32,7 +32,7 @@ class EasyTreeController<E> {
   List<VoidCallback> _listeners = [];
   List<EasyTreeNode<E>>? _nodes;
   List<EasyTreeNode<E>>? _selectedNodes;
-  late GlobalKey<AnimatedListState> _listKey;
+  late GlobalKey _listKey;
   late List<EasyTreeNode<E>> _initialNodes;
   late EasyTreeConfiguration _configuration;
   late EasyTreeItemRemovedBuilder<EasyTreeNode<E>> _removedItemBuilder;
@@ -47,7 +47,7 @@ class EasyTreeController<E> {
   void initialize({
     required List<EasyTreeNode<E>> initialNodes,
     required EasyTreeConfiguration configuration,
-    required GlobalKey<AnimatedListState> key,
+    required GlobalKey key,
     required EasyTreeItemRemovedBuilder<EasyTreeNode<E>> removedItemBuilder,
   }) async {
     _listKey = key;
@@ -102,7 +102,12 @@ class EasyTreeController<E> {
         _nodes!.insertAll(index, modified);
         int total = modified.length;
         for (int offset = 0; offset < total; offset++) {
-          _listKey.currentState?.insertItem(index + offset);
+          State<StatefulWidget>? _state = _listKey.currentState;
+          if (_state is SliverAnimatedListState) {
+            _state.insertItem(index + offset);
+          } else if (_state is AnimatedListState) {
+            _state.insertItem(index + offset);
+          }
         }
       }
     }
@@ -127,9 +132,16 @@ class EasyTreeController<E> {
       for (EasyTreeNode<E> item in modified) {
         int index = _nodes!.indexWhere((element) => element.key == item.key);
         if (index != -1) {
-          _listKey.currentState?.removeItem(index, (context, animation) {
-            return _removedItemBuilder(item, context, animation);
-          });
+          State<StatefulWidget>? _state = _listKey.currentState;
+          if (_state is SliverAnimatedListState) {
+            _state.removeItem(index, (context, animation) {
+              return _removedItemBuilder(item, context, animation);
+            });
+          } else if (_state is AnimatedListState) {
+            _state.removeItem(index, (context, animation) {
+              return _removedItemBuilder(item, context, animation);
+            });
+          }
           _nodes!.removeWhere((element) => item.key == element.key);
         }
       }
