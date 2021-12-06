@@ -71,6 +71,9 @@ class EasyTreeNode<E> {
 
   bool get isLeaf => this.children?.isEmpty ?? true;
   bool get parentExpanded => this.parent?.expanded ?? false;
+  bool get isFirst =>
+      level == 0 ? false : (this.parent?.children?.first == this);
+  bool get isLast => level == 0 ? false : (this.parent?.children?.last == this);
 
   EasyTreeTuple<bool, bool, bool> get getChildState {
     bool all = true, none = true;

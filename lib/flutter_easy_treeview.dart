@@ -26,3 +26,4 @@ export 'src/easy_tree_configuration.dart';
 export 'src/easy_tree_controller.dart';
 export 'src/easy_tree_node.dart';
 export 'src/easy_tree_view.dart';
+export 'src/easy_tree_util.dart';
