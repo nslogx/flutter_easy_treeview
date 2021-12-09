@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import './easy_tree_tuple.dart';
 import './easy_tree_configuration.dart';
 import './easy_tree_util.dart';
+import './easy_tree_key_provider.dart';
 
 class EasyTreeNode<E> {
   final E data;
@@ -110,8 +111,21 @@ class EasyTreeNode<E> {
     this.parent?.removeChild(this);
   }
 
+  void removeChildren() {
+    this.children?.clear();
+  }
+
   void removeChild(EasyTreeNode<E> child) {
     this.children?.remove(child);
+  }
+
+  void insert(List<EasyTreeNode<E>> children) {
+    children.forEach((element) {
+      element.parent = this;
+      element.level = this.level + 1;
+      element.key = EasyTreeKeyProvider.instance.key;
+    });
+    this.children?.addAll(children);
   }
 
   void _updateParentState() {
