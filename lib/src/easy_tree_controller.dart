@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2021 nslog11
+// Copyright (c) 2021 nslogx
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -28,14 +28,15 @@ import './easy_tree_util.dart';
 import './easy_tree_configuration.dart';
 
 class EasyTreeController<E> {
-  bool _isInitialized = false;
-  List<VoidCallback> _listeners = [];
-  List<EasyTreeNode<E>>? _nodes;
-  List<EasyTreeNode<E>>? _selectedNodes;
+  final List<VoidCallback> _listeners = [];
   late GlobalKey _listKey;
   late List<EasyTreeNode<E>> _initialNodes;
   late EasyTreeConfiguration _configuration;
   late EasyTreeItemRemovedBuilder<EasyTreeNode<E>> _removedItemBuilder;
+
+  bool _isInitialized = false;
+  List<EasyTreeNode<E>>? _nodes;
+  List<EasyTreeNode<E>>? _selectedNodes;
 
   EasyTreeController();
 
@@ -96,6 +97,7 @@ class EasyTreeController<E> {
     if (!node.expanded && !node.isLeaf && _nodes != null) {
       node.expanded = true;
       List<EasyTreeNode<E>> modified = node.getModifiedChildren;
+      modified.retainWhere((element) => element.isShow);
       int index = _nodes!.indexOf(node);
       if (index != -1 && modified.length > 0) {
         index += 1;

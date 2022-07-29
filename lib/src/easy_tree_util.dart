@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2021 nslog11
+// Copyright (c) 2021 nslogx
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -69,7 +69,7 @@ List<EasyTreeNode<E>> listToTree<E>(List<EasyTreeNode<E>> nodes) {
 List<EasyTreeNode<E>> treeToList<E>(List<EasyTreeNode<E>>? nodes) {
   if (nodes == null) return [];
   List<EasyTreeNode<E>> result = flatTree<E>(nodes);
-  result.retainWhere((element) => element.level == 0 || element.parentExpanded);
+  result.retainWhere((element) => element.isShow);
   return result;
 }
 

@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2021 nslog11
+// Copyright (c) 2021 nslogx
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -21,6 +21,7 @@
 // IN THE SOFTWARE.
 
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 import './easy_tree_tuple.dart';
 import './easy_tree_configuration.dart';
@@ -73,8 +74,18 @@ class EasyTreeNode<E> {
   bool get isLeaf => this.children?.isEmpty ?? true;
   bool get parentExpanded => this.parent?.expanded ?? false;
   bool get isFirst =>
-      level == 0 ? false : (this.parent?.children?.first == this);
-  bool get isLast => level == 0 ? false : (this.parent?.children?.last == this);
+      level == 0 ? false : (this.parent?.children?.firstOrNull == this);
+  bool get isLast =>
+      level == 0 ? false : (this.parent?.children?.lastOrNull == this);
+  bool get isShow {
+    if (this.level == 0) return true;
+    EasyTreeNode<E>? _parent = this.parent;
+    while (_parent != null) {
+      if (!_parent.expanded) return false;
+      _parent = _parent.parent;
+    }
+    return true;
+  }
 
   EasyTreeTuple<bool, bool, bool> get getChildState {
     bool all = true, none = true;
